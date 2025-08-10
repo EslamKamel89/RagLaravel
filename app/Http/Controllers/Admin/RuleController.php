@@ -25,7 +25,8 @@ class RuleController extends Controller {
             $rules = [];
             session()->flash('error', 'Unable to connect to the rule service.');
         }
-        return view('admin.rules.index', compact('rules'));
+        // dd($rules);
+        return view('admin.rules.index', ['rules' => $rules]);
     }
     public function create() {
         return view('admin.rules.create');
