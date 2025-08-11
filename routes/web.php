@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return  redirect()->route('dashboard');
 });
+Route::resource('http-controller', App\Http\Controllers\HttpControlller::class);
+Route::get('get-ayat', [App\Http\Controllers\HttpControlller::class, 'getAyat']);
 Route::get('/phpinfo', fn() => phpinfo());
 
 
