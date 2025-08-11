@@ -82,9 +82,11 @@ class RuleController extends Controller {
         try {
             $response = Http::timeout(60)->post("{$this->externalApiUrl}/update", [
                 'id_' => $id,
-                'rules' => $request->get('rules'),
-                'content' => $request->get('content'),
-                'main_keyword' => $request->get('main_keyword'),
+                "field_name" => "main_keyword",
+                'value' => $request->get('main_keyword'),
+                // 'rules' => $request->get('rules'),
+                // 'content' => $request->get('content'),
+                // 'main_keyword' => $request->get('main_keyword'),
             ]);
             if ($response->successful()) {
                 return redirect()->route('rules.index')->with('success', 'Rule updated successfully.');
