@@ -17,9 +17,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard',  fn() => view('dashboard'))->name('dashboard');
     Route::get('/rules', [RuleController::class, 'index'])->name('rules.index');
     Route::get('/rules/create', [RuleController::class, 'create'])->name('rules.create');
     Route::post('/rules', [RuleController::class, 'store'])->name('rules.store');

@@ -11,9 +11,7 @@
                 <div class="p-6 text-gray-900">
                     {{ __("You're logged in!") }}
                 </div>
-                <div>
-                    <button class="btn btn-primary">Primary</button>
-                </div>
+
             </div>
         </div>
     </div>

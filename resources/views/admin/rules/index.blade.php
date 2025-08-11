@@ -1,7 +1,7 @@
 {{-- resources/views/rules/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-black">
+        <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
             {{ __('Rules Management') }}
         </h2>
     </x-slot>
@@ -41,9 +41,9 @@
                             <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="rules-table-body">
                         @forelse ($rules as $index => $rule)
-                        <tr>
+                        <tr data-id="{{ $rule['_id'] }}" data-name="{{ addslashes($rule['rules']) }}">
                             <th>{{ $index + 1 }}</th>
                             <td>
                                 <span class="font-medium">{{ $rule['rules'] ?? 'N/A' }}</span>
@@ -68,8 +68,10 @@
                                         </svg>
                                     </a>
                                     <button
-                                        onclick="openDeleteModal('{{ $rule['_id'] }}', '{{ addslashes($rule['rules']) }}')"
-                                        class=" btn btn-square btn-outline btn-sm btn-error">
+                                        type="button"
+                                        class=" btn btn-square btn-outline btn-sm btn-error open-delete-modal"
+                                        data-id="{{ $rule['_id'] }}"
+                                        data-name="{{ $rule['rules'] }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
@@ -91,12 +93,12 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <x-dialog id="deleteModal">
+    <x-dialog id="rules.index.deleteModal">
         <x-slot:title>{{ __('Confirm Deletion') }}</x-slot:title>
         <p>{{ __('Are you sure you want to delete the rule:') }} <strong id="ruleName"></strong>?</p>
         <x-slot:actions>
-            <button type="button" class="btn btn-ghost" onclick="closeDeleteModal()">{{ __('Cancel') }}</button>
-            <form id="deleteForm" method="POST" class="inline">
+            <button type="button" class="btn btn-ghost" id="cancelDelete">{{ __('Cancel') }}</button>
+            <form id="deleteForm" method="POST">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="text-white btn btn-error">{{ __('Delete') }}</button>
@@ -104,17 +106,28 @@
         </x-slot:actions>
     </x-dialog>
 
-    <!-- Scripts -->
     <script>
-        function openDeleteModal(id, name) {
-            document.getElementById('ruleName').textContent = name;
-            document.getElementById('deleteForm').action = `/rules/${id}`;
-            const modal = document.getElementById('deleteModal');
-            modal.showModal();
-        }
+        $(document).ready(function() {
+            $(document).on('click', '.open-delete-modal', function() {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
 
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').close();
-        }
+                $('#ruleName').text(name);
+                $('#deleteForm').attr('action', '/admin/rules/' + id);
+
+                const modal = document.getElementById('rules.index.deleteModal');
+                modal.showModal();
+            });
+
+            $('#cancelDelete').on('click', function() {
+                const modal = document.getElementById('rules.index.deleteModal');
+                modal.close();
+            });
+
+            $('#rules.index.deleteModal').on('close', function() {
+                $('#deleteForm').attr('action', '');
+                $('#ruleName').text('');
+            });
+        });
     </script>
 </x-app-layout>
