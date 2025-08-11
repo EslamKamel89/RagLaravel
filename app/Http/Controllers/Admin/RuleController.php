@@ -96,7 +96,7 @@ class RuleController extends Controller {
             return redirect()->back()->with('error', 'Unable to connect to the rule service.')->withInput();
         }
     }
-    public function destory(string $id) {
+    public function destroy(string $id) {
         try {
             $response = Http::timeout(60)->post("{$this->externalApiUrl}/delete", ['id_' => $id]);
             if ($response->successful()) {

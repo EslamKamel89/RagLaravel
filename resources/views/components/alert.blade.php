@@ -1,4 +1,4 @@
-@props(['status' => 'info'])
+@props(['status' => 'info' , 'message'=>''])
 
 @php
 $classes = match ($status) {
