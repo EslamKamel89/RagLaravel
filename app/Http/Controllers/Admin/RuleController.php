@@ -80,13 +80,16 @@ class RuleController extends Controller {
             return redirect()->back()->withErrors($validator)->withInput();
         }
         try {
-            $response = Http::timeout(60)->post("{$this->externalApiUrl}/update", [
+
+            $response = Http::timeout(60)->patch("{$this->externalApiUrl}/update", [
                 'id_' => $id,
-                "field_name" => "main_keyword",
-                'value' => $request->get('main_keyword'),
-                // 'rules' => $request->get('rules'),
-                // 'content' => $request->get('content'),
-                // 'main_keyword' => $request->get('main_keyword'),
+                // "field_name" => "main_keyword",
+                // 'value' => $request->get('main_keyword'),
+                'Data' => [
+                    'rules' => $request->get('rules'),
+                    'content' => $request->get('content'),
+                    'main_keyword' => $request->get('main_keyword'),
+                ],
             ]);
             if ($response->successful()) {
                 return redirect()->route('rules.index')->with('success', 'Rule updated successfully.');
@@ -100,7 +103,7 @@ class RuleController extends Controller {
     }
     public function destroy(string $id) {
         try {
-            $response = Http::timeout(60)->post("{$this->externalApiUrl}/delete", ['id_' => $id]);
+            $response = Http::timeout(60)->delete("{$this->externalApiUrl}/delete", ['id_' => $id]);
             if ($response->successful()) {
                 return redirect()->route('rules.index')->with('success', 'Rule deleted successfully.');
             } else {
