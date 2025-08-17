@@ -22,6 +22,7 @@ class ProxyController extends Controller {
         $body = $validated['body'] ?? [];
         $headers = ['Content-Type' => 'application/json'];
         $response = null;
+        // dd($body);
         try {
             if ($method === 'GET') {
                 $response = Http::timeout($this->timeout)
@@ -30,11 +31,10 @@ class ProxyController extends Controller {
             } else {
                 $response = Http::timeout($this->timeout)
                     ->withHeaders($headers)
-                    ->withBody($body)
+                    ->withBody(json_encode($body), 'application/json')
                     ->send($method, $url);
             }
-            return response($response->body())
-                ->withStatus($response->status())
+            return response($response->body(), $response->status())
                 ->withHeaders($response->headers());
         } catch (\Throwable $th) {
             return response()->json(['error' => "Proxy request failed: {$th->getMessage()}"], 500);

@@ -11,6 +11,7 @@ Route::get('/', function () {
 Route::resource('http-controller', App\Http\Controllers\HttpControlller::class);
 Route::get('get-ayat', [App\Http\Controllers\HttpControlller::class, 'getAyat']);
 Route::post('/proxy', [ProxyController::class, 'proxy']);
+
 Route::get('/phpinfo', fn() => phpinfo());
 
 
