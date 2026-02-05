@@ -9,15 +9,20 @@ use Illuminate\Support\Facades\Validator;
 
 class RuleController extends Controller {
     protected string $externalApiUrl;
+    protected $timeout;
     public function __construct() {
-        $this->externalApiUrl = env('EXTERNAL_API_BASE_URL');
+        $this->externalApiUrl = rtrim(config('externalapi.base_url'), '/');
+        $this->timeout = config('externalapi.timeout');
     }
-    public function index() {
+    public function index(Request $request) {
+        $filter = trim($request->query('filter', ''));
         try {
             $rules = [];
+
             $response = Http::timeout(60)->get("{$this->externalApiUrl}/readAll");
             if ($response->successful()) {
                 $rules = $response->json('data');
+                $rules = $this->filter($filter, $rules);
             } else {
                 session()->flash('error', 'Failed to fetch rules from the server.');
             }
@@ -25,8 +30,8 @@ class RuleController extends Controller {
             $rules = [];
             session()->flash('error', 'Unable to connect to the rule service.');
         }
-        // dd($rules);
-        return view('admin.rules.index', ['rules' => $rules]);
+        //dd($rules);
+        return view('admin.rules.index', ['rules' => $rules, 'filter' => $filter]);
     }
     public function create() {
         return view('admin.rules.create');
@@ -80,13 +85,16 @@ class RuleController extends Controller {
             return redirect()->back()->withErrors($validator)->withInput();
         }
         try {
-            $response = Http::timeout(60)->post("{$this->externalApiUrl}/update", [
+
+            $response = Http::timeout(60)->patch("{$this->externalApiUrl}/update", [
                 'id_' => $id,
-                "field_name" => "main_keyword",
-                'value' => $request->get('main_keyword'),
-                // 'rules' => $request->get('rules'),
-                // 'content' => $request->get('content'),
-                // 'main_keyword' => $request->get('main_keyword'),
+                // "field_name" => "main_keyword",
+                // 'value' => $request->get('main_keyword'),
+                'Data' => [
+                    'rules' => $request->get('rules'),
+                    'content' => $request->get('content'),
+                    'main_keyword' => $request->get('main_keyword'),
+                ],
             ]);
             if ($response->successful()) {
                 return redirect()->route('rules.index')->with('success', 'Rule updated successfully.');
@@ -100,7 +108,7 @@ class RuleController extends Controller {
     }
     public function destroy(string $id) {
         try {
-            $response = Http::timeout(60)->post("{$this->externalApiUrl}/delete", ['id_' => $id]);
+            $response = Http::timeout(60)->delete("{$this->externalApiUrl}/delete", ['id_' => $id]);
             if ($response->successful()) {
                 return redirect()->route('rules.index')->with('success', 'Rule deleted successfully.');
             } else {
@@ -109,5 +117,28 @@ class RuleController extends Controller {
         } catch (\Throwable $th) {
             return redirect()->route('rules.index')->with('error', 'Unable to delete the rule.');
         }
+    }
+    protected function filter(string $filter, array $rules): array {
+        $filter = trim($filter);
+        if ($filter === '') return $rules;
+        $filterLower = mb_strtolower($filter);
+        return collect($rules)
+            ->filter(function ($rule) use ($filterLower) {
+                $ruleName = mb_strtolower($rule['rules'] ?? '');
+                if (str_contains($ruleName, $filterLower)) {
+                    return true;
+                }
+                $keywords = is_array($rule['main_keyword'] ?? null)
+                    ? $rule['main_keyword']
+                    : [];
+                foreach ($keywords as $keyword) {
+                    if (str_contains(mb_strtolower($keyword), $filterLower)) {
+                        return true;
+                    }
+                }
+                return false;
+            })
+            ->values()
+            ->all();
     }
 }

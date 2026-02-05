@@ -5,6 +5,7 @@
         </h2>
     </x-slot>
 
+
     <div class="py-12">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <!-- Success and Error Messages -->
@@ -26,7 +27,19 @@
                     {{ __('Create New Rule') }}
                 </a>
             </div>
-
+            <div class="flex gap-2 mb-6">
+                <form method="GET" action="{{ route('rules.index') }}" class="flex w-full gap-2">
+                    <input
+                        type="text"
+                        name="filter"
+                        value="{{ $filter }}"
+                        placeholder="Search rules or keywords..."
+                        class="w-full input input-bordered">
+                    <button type="submit" class="btn btn-primary">
+                        Search
+                    </button>
+                </form>
+            </div>
             <!-- Rules Table -->
             <div class="overflow-x-auto shadow bg-base-100 rounded-box">
                 <table class="table w-full table-zebra">
