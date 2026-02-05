@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\RuleController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProxyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,6 +10,8 @@ Route::get('/', function () {
 });
 Route::resource('http-controller', App\Http\Controllers\HttpControlller::class);
 Route::get('get-ayat', [App\Http\Controllers\HttpControlller::class, 'getAyat']);
+Route::post('/proxy', [ProxyController::class, 'proxy']);
+
 Route::get('/phpinfo', fn() => phpinfo());
 
 
