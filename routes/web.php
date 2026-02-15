@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\RuleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProxyController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\QuestionController;
+use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', function () {
     return  redirect()->route('dashboard');
@@ -29,6 +32,13 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('/rules/{id}/edit', [RuleController::class, 'edit'])->name('rules.edit');
     Route::put('/rules/{id}', [RuleController::class, 'update'])->name('rules.update');
     Route::delete('/rules/{id}', [RuleController::class, 'destroy'])->name('rules.destroy');
+    Route::resource('categories', CategoryController::class);
+    Route::resource('questions', QuestionController::class);
+});
+Route::get('/artisan', function () {
+    Artisan::call('migrate');
+
+    return response()->json(['message' => 'Migration executed!']);
 });
 
 require __DIR__ . '/auth.php';
